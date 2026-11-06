@@ -22,6 +22,12 @@ build/
 .coverage
 htmlcov/
 
+# Playwright E2E
+e2e/node_modules/
+e2e/playwright-report/
+e2e/test-results/
+e2e/.runtime/
+
 # Ma'lumotlar bazasi va loglar
 *.db
 # SQLite WAL rejimida yonma-yon ikkita yordamchi fayl yaratadi

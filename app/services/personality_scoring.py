@@ -3,9 +3,12 @@
 Tie-break (when dimension totals are equal after weighted scoring):
 1. Compare sum of +3 ("strong") contributions per pole from answered items.
 2. If still tied, compare sum of +1 ("weak") contributions per pole.
-3. If still tied, deterministic hash on `tie_salt` and dimension (see `_resolve_letter`).
+3. If still tied, a SHA-256 bit of `tie_salt` and the dimension picks a stored letter.
+   That letter is only a stable key. Equal totals stay low-confidence so the UI
+   can describe the dimension as ambiguous.
 """
 
+import hashlib
 from dataclasses import dataclass
 
 from app.personality.constants import DIMENSION_LOW_CONFIDENCE_MAX_GAP
@@ -67,6 +70,14 @@ def _is_low_confidence(left_score: int, right_score: int) -> bool:
     return abs(left_score - right_score) <= DIMENSION_LOW_CONFIDENCE_MAX_GAP
 
 
+def _stable_tie_letter(tie_salt: str, left_letter: str, right_letter: str) -> str:
+    """Same salt and letters always return the same side, including across processes."""
+    payload = f"{tie_salt}\0{left_letter}\0{right_letter}".encode()
+    if hashlib.sha256(payload).digest()[0] % 2 == 0:
+        return left_letter
+    return right_letter
+
+
 def _resolve_letter(
     left_score: int,
     right_score: int,
@@ -94,8 +105,8 @@ def _resolve_letter(
         return left_letter, low_confidence
     if weak_right > weak_left:
         return right_letter, low_confidence
-    # Session-deterministic coin flip — avoids always picking the first pole letter.
-    if hash((tie_salt, left_letter, right_letter)) % 2 == 0:
+    # Stored letter only. Callers must treat low_confidence as an ambiguous dimension.
+    if _stable_tie_letter(tie_salt, left_letter, right_letter) == left_letter:
         return left_letter, low_confidence
     return right_letter, low_confidence
 
@@ -183,4 +194,44 @@ def calculate_personality_result(
         sn=_pair_percent(s, n, "Sensor (S)", "Intuitiv (N)", low_confidence=sn_low),
         tf=_pair_percent(t, f, "Mantiqiy (T)", "Hisliy (F)", low_confidence=tf_low),
         jp=_pair_percent(j, p, "Rejalovchi (J)", "Improvisatsiya (P)", low_confidence=jp_low),
+    )
+
+
+def personality_result_from_stored(
+    result_type: str,
+    e: int,
+    i: int,
+    s: int,
+    n: int,
+    t: int,
+    f: int,
+    j: int,
+    p: int,
+    *,
+    ei_low_confidence: bool,
+    sn_low_confidence: bool,
+    tf_low_confidence: bool,
+    jp_low_confidence: bool,
+) -> PersonalityResult:
+    """Build display scores from persisted values. Do not re-resolve letters.
+
+    Completion already chose `result_type` with strong/weak votes and `tie_salt`.
+    Re-running `calculate_personality_result` without those inputs can flip a tied
+    letter. Percent bars and low-confidence flags come from what was stored.
+    """
+    return PersonalityResult(
+        result_type=result_type,
+        scores=PersonalityScores(e=e, i=i, s=s, n=n, t=t, f=f, j=j, p=p),
+        ei=_pair_percent(
+            i, e, "Introvert (I)", "Ekstravert (E)", low_confidence=ei_low_confidence
+        ),
+        sn=_pair_percent(
+            s, n, "Sensor (S)", "Intuitiv (N)", low_confidence=sn_low_confidence
+        ),
+        tf=_pair_percent(
+            t, f, "Mantiqiy (T)", "Hisliy (F)", low_confidence=tf_low_confidence
+        ),
+        jp=_pair_percent(
+            j, p, "Rejalovchi (J)", "Improvisatsiya (P)", low_confidence=jp_low_confidence
+        ),
     )

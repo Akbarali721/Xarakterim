@@ -316,6 +316,81 @@ def test_extra_items_are_dropped_to_the_configured_count():
     assert items is not None and len(items) == 5
 
 
+# --------------------------- prompt: saqlangan natija ---------------------------
+
+
+def _scale_line_from_session(session) -> str:
+    from app.services.personality_scoring import personality_result_from_stored
+
+    result = personality_result_from_stored(
+        session.result_type or "",
+        session.e_score,
+        session.i_score,
+        session.s_score,
+        session.n_score,
+        session.t_score,
+        session.f_score,
+        session.j_score,
+        session.p_score,
+        ei_low_confidence=session.ei_low_confidence,
+        sn_low_confidence=session.sn_low_confidence,
+        tf_low_confidence=session.tf_low_confidence,
+        jp_low_confidence=session.jp_low_confidence,
+    )
+    return ", ".join(
+        f"{left.upper()} {getattr(result, name).left_percent}% / "
+        f"{right.upper()} {getattr(result, name).right_percent}%"
+        for name, left, right in (("ei", "i", "e"), ("sn", "s", "n"), ("tf", "t", "f"), ("jp", "j", "p"))
+    )
+
+
+def test_user_prompt_uses_stored_type_and_percents_on_full_tie(client):
+    """Teng ballda tip session.result_type dan; foizlar saltisiz qayta hisob emas."""
+    token = complete_session(client, option_index=0)
+    with db_session(client) as db:
+        session = session_by_token(db, token)
+        assert session.result_type
+        assert session.e_score == session.i_score == 9
+        prompt = ai_advice_service.user_prompt(session, "uz")
+        assert prompt.startswith(f"MBTI tipi: {session.result_type}.")
+        assert f"O'lchovlar: {_scale_line_from_session(session)}." in prompt
+        # Saltisiz hisob ba'zan boshqa tip beradi — prompt shunga erishmasligi kerak.
+        from app.services.personality_scoring import calculate_personality_result
+
+        saltless = calculate_personality_result(9, 9, 9, 9, 9, 9, 9, 9)
+        if saltless.result_type != session.result_type:
+            assert f"MBTI tipi: {saltless.result_type}." not in prompt
+
+
+def test_user_prompt_keeps_stored_type_when_scores_are_close(client):
+    from tests.helpers import favor_left_option_index
+
+    token = complete_session(client, option_picker=favor_left_option_index)
+    with db_session(client) as db:
+        session = session_by_token(db, token)
+        stored_type = session.result_type
+        session.e_score = 9
+        session.i_score = 7
+        session.s_score = 9
+        session.n_score = 7
+        session.t_score = 9
+        session.f_score = 7
+        session.j_score = 9
+        session.p_score = 7
+        session.ei_low_confidence = True
+        session.sn_low_confidence = True
+        session.tf_low_confidence = True
+        session.jp_low_confidence = True
+        db.commit()
+        db.refresh(session)
+
+        prompt = ai_advice_service.user_prompt(session, "uz")
+        assert prompt.startswith(f"MBTI tipi: {stored_type}.")
+        assert f"O'lchovlar: {_scale_line_from_session(session)}." in prompt
+        # Yaqin ball foizi 50/50 emas.
+        assert "I 44% / E 56%" in prompt or "I 43% / E 57%" in prompt or "44%" in prompt
+
+
 # --------------------------- PDF ---------------------------
 
 

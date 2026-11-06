@@ -45,23 +45,49 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing.title": "Xarakter va hayot uslubi testi",
         "landing.eyebrow": "XARAKTER VA HAYOT USLUBI TESTI",
         "landing.headline": "Siz aslida qanday odamsiz?",
-        "landing.lead": "Xarakteringizni bilish — o‘zingizni boshqarishni osonlashtiradi.",
+        "landing.lead": (
+            "O‘zingizni yaxshiroq tushuning va kuchli tomonlaringizdan foydalanishni o‘rganing."
+        ),
         "landing.copy": (
-            "24 ta savol orqali kuchli va zaif tomonlaringizni, qaror qabul qilish va "
-            "muloqot uslubingizni yaxshiroq tushuning."
+            "24 ta hayotiy savol orqali muloqot, qaror qabul qilish va "
+            "rejalashtirish uslubingizni o‘rganing."
         ),
         "landing.meta_aria": "Test haqida",
         "landing.meta_questions": "24 ta savol",
+        "landing.meta_questions_desc": "Oddiy hayotiy vaziyatlar",
         "landing.meta_minutes": "4–5 daqiqa",
-        "landing.meta_personal": "Shaxsiy natija",
-        "landing.cta": "O‘zim haqimda bilish",
+        "landing.meta_minutes_desc": "Qisqa va tushunarli",
+        "landing.meta_personal": "Xarakter tahlili",
+        "landing.meta_personal_desc": "Shaxsiy tavsif va tavsiyalar",
+        "landing.cta": "Testni bepul boshlash",
+        "landing.free_note": "Boshlang‘ich natija bepul.",
+        "landing.benefits_title": "Testdan nima olasiz?",
+        "landing.benefit_1_title": "O‘zingizni yaxshiroq tushuning",
+        "landing.benefit_1_text": (
+            "Muloqot va qaror qabul qilishdagi odatiy afzalliklaringizni bilib oling."
+        ),
+        "landing.benefit_2_title": "Kuchli tomonlaringizni o‘rganing",
+        "landing.benefit_2_text": "Javoblaringiz asosida shaxsiy xususiyatlaringiz haqida tavsif oling.",
+        "landing.benefit_3_title": "Amaliy tavsiyalar",
+        "landing.benefit_3_text": (
+            "Kundalik hayotingizda sinab ko‘rishingiz mumkin bo‘lgan kichik qadamlarni oling."
+        ),
+        "landing.method_title": "Test qanday ishlaydi?",
+        "landing.method_text": (
+            "Xarakterim testi MBTI uslubidagi to‘rtta shaxsiyat yo‘nalishidan ilhomlangan. "
+            "Natijalar javoblaringizga asoslangan tavsiyalar bo‘lib, klinik yoki professional "
+            "psixologik tashxis hisoblanmaydi."
+        ),
         "landing.hero_alt": "Xarakterni anglash testi",
         # Ko‘rsatma
-        "instructions.title": "Testdan oldin",
+        "instructions.title": "Testga tayyormisiz?",
         "instructions.text": (
-            "Javoblarni hozir qanday bo‘lishni xohlayotganingizga emas, "
-            "odatda qanday harakat qilishingizga qarab belgilang."
+            "Savollarga qanday inson bo‘lishni xohlashingizga emas, "
+            "odatda qanday yo‘l tutishingizga qarab javob bering."
         ),
+        "instructions.point_closest": "O‘zingizga eng yaqin javobni tanlang.",
+        "instructions.point_free": "Barcha savollardan keyin boshlang‘ich natijangizni bepul ko‘rasiz.",
+        "instructions.gender_invalid": "Tanlov noto‘g‘ri. Testni qaytadan boshlang.",
         "instructions.gender_group": "Jinsni tanlang",
         "instructions.female": "Ayol",
         "instructions.male": "Erkak",
@@ -126,11 +152,85 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Bu javoblaringizga asoslangan umumiy taxmin. Mutlaq haqiqat yoki tashxis emas — "
             "o‘zingizni yaxshiroq tushunish uchun yo‘l-yo‘riq sifatida qabul qiling."
         ),
-        "result.section.who": "Siz qanday odamsiz?",
+        "result.section.who": "Javoblaringizdan ko‘rinadigan odatlar",
+        "result.mixed_heading": "Javoblaringiz aralash chiqdi",
         "result.section.example": "Hayotiy misol",
-        "result.strengths": "Sizning 3 ta kuchli tomoningiz",
-        "result.challenges": "Sizga qiyinchilik tug‘dirishi mumkin bo‘lgan 2 ta holat",
-        "result.daily_tips": "O‘zingizni rivojlantirish uchun 3 ta amaliy tavsiya",
+        "result.strengths": "Sizga yordam berishi mumkin bo‘lgan jihatlar",
+        "result.challenges": "Nimalarga e’tibor berishingiz mumkin?",
+        "result.daily_tips": "Amaliy qadamlar",
+        "result.formed.title": "Natijangiz qanday shakllandi?",
+        "result.formed.ei.title": "Muloqot uslubingiz",
+        "result.formed.ei.e": (
+            "Javoblaringizda odamlar bilan bo‘lish va suhbatni o‘zingiz boshlash ko‘proq chiqdi."
+        ),
+        "result.formed.ei.i": (
+            "Javoblaringizda tinchroq muhit va kamroq odam bilan bo‘lish ko‘proq chiqdi."
+        ),
+        "result.formed.ei.close_e": (
+            "Odamlar bilan bo‘lish biroz ko‘proq chiqdi, lekin yolg‘izroq qolish ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.ei.close_i": (
+            "Yolg‘izroq qolish biroz ko‘proq chiqdi, lekin odamlar bilan bo‘lish ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.ei.tie": (
+            "Odamlar bilan bo‘lish va yolg‘izroq qolish bir xil darajada chiqdi. "
+            "Muloqot uslubingizni bitta tomonga bog‘lab bo‘lmaydi."
+        ),
+        "result.formed.sn.title": "Ma’lumotni qabul qilish uslubingiz",
+        "result.formed.sn.s": (
+            "Javoblaringizda aniq fakt va hozirgi vaziyatga qarash ko‘proq chiqdi."
+        ),
+        "result.formed.sn.n": (
+            "Javoblaringizda imkoniyat va keyingi qadam haqida o‘ylash ko‘proq chiqdi."
+        ),
+        "result.formed.sn.close_s": (
+            "Aniq faktga qarash biroz ko‘proq chiqdi, lekin imkoniyat haqida o‘ylash ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.sn.close_n": (
+            "Imkoniyat haqida o‘ylash biroz ko‘proq chiqdi, lekin aniq faktga qarash ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.sn.tie": (
+            "Aniq faktga qarash va imkoniyat haqida o‘ylash bir xil darajada chiqdi. "
+            "Bu uslubni bitta tomonga bog‘lab bo‘lmaydi."
+        ),
+        "result.formed.tf.title": "Qaror qabul qilish uslubingiz",
+        "result.formed.tf.t": (
+            "Javoblaringizda qarorni sabab va natijaga qarab ko‘rish ko‘proq chiqdi."
+        ),
+        "result.formed.tf.f": (
+            "Javoblaringizda qarorda odamning holati va munosabatni ko‘rish ko‘proq chiqdi."
+        ),
+        "result.formed.tf.close_t": (
+            "Sabab va natijaga qarash biroz ko‘proq chiqdi, lekin odamning holatini ko‘rish ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.tf.close_f": (
+            "Odamning holatini ko‘rish biroz ko‘proq chiqdi, lekin sabab va natijaga qarash ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.tf.tie": (
+            "Sababga qarash va odamning holatini ko‘rish bir xil darajada chiqdi. "
+            "Qaror uslubingizni bitta tomonga bog‘lab bo‘lmaydi."
+        ),
+        "result.formed.jp.title": "Rejalashtirish uslubingiz",
+        "result.formed.jp.j": "Javoblaringizda oldindan reja qilish ko‘proq chiqdi.",
+        "result.formed.jp.p": "Javoblaringizda vaziyatga qarab moslashish ko‘proq chiqdi.",
+        "result.formed.jp.close_j": (
+            "Oldindan reja qilish biroz ko‘proq chiqdi, lekin vaziyatga moslashish ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.jp.close_p": (
+            "Vaziyatga moslashish biroz ko‘proq chiqdi, lekin oldindan reja qilish ham yaqin turdi. "
+            "Farq kichik, shuning uchun bu qat’iy xulosa emas."
+        ),
+        "result.formed.jp.tie": (
+            "Oldindan reja qilish va vaziyatga moslashish bir xil darajada chiqdi. "
+            "Rejalashtirish uslubingizni bitta tomonga bog‘lab bo‘lmaydi."
+        ),
         "result.growth_intro": (
             "Agar sizda ham shunday holat bo‘lsa, quyidagi yo‘nalishlardan biri mos kelishi mumkin."
         ),
@@ -238,15 +338,38 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "result.premium.relationships": "Odamlar bilan munosabat",
         "result.premium.actions": "7 kunlik amaliy tavsiya",
-        "result.premium.brief.teaser": "Kundalik hayotda bu xususiyat qayerda chiqishi mumkin.",
-        "result.premium.strengths.teaser": "Har bir kuchli tomondan qayerda foydalanish mumkin.",
-        "result.premium.drains.teaser": (
-            "Sizni charchatishi mumkin bo‘lgan 3 holat va har biriga bitta qadam."
+        "result.premium.brief.teaser": (
+            "Javob ballaringiz va tipingiz bo‘yicha kundalik hayotda nima ko‘rinishi mumkin."
         ),
-        "result.premium.work.teaser": "Qanday ish muhiti, vazifa va jamoa uslubi yengilroq kelishi mumkin.",
-        "result.premium.relationships.teaser": "Do‘stlik, yaqinlik va kelishmovchilikda nima qilish mumkin.",
-        "result.premium.actions.teaser": "7 kun davomida har kuni 5–15 daqiqalik bitta kichik vazifa.",
-        "result.locked_note": "Premium tahlil to‘lov tasdiqlangach ochiladi.",
+        "result.premium.strengths.teaser": (
+            "Ballaringizdagi aniq ustunliklarga asoslangan kuchli tomonlar va qayerda foydalanish."
+        ),
+        "result.premium.drains.teaser": (
+            "Sizni charchatishi mumkin bo‘lgan holatlar va har biriga bitta kichik qadam."
+        ),
+        "result.premium.work.teaser": (
+            "Qanday ish muhiti yengilroq kelishi mumkin (taxmin; kasb kafolati emas)."
+        ),
+        "result.premium.relationships.teaser": "Do‘stlik va yaqinlikda nima qilish mumkin.",
+        "result.premium.actions.teaser": "Bugungi kichik qadam va 7 kungacha amaliy vazifalar.",
+        "result.premium.soft_type_note": (
+            "Ba’zi yo‘nalishlarda ballar yaqin yoki teng chiqdi. Bu qat’iy xulosa emas — "
+            "bitta tipga mahkam bog‘lab bo‘lmaydi."
+        ),
+        "result.premium.type_extra": "Tipga oid qo‘shimcha matn (umumiy taxmin):",
+        "result.premium.soft_actions_note": (
+            "Ballar yaqin joylarda reja yumshoq: avval kichik kuzatuv, keyin tip bo‘yicha mashq."
+        ),
+        "result.premium.no_clear_strength": (
+            "Aniq ustunlik chiqmagani uchun hozir bitta odatni kuchli tomon deb ko‘rsatib bo‘lmaydi."
+        ),
+        "result.premium.no_clear_drain": (
+            "Aniq ustunlik chiqmagani uchun charchashni hozir bitta odatga bog‘lab bo‘lmaydi."
+        ),
+        "result.locked_note": (
+            "Premium: ballarga mos kuchli/zaif tomonlar, tip bo‘yicha chuqurroq tahlil, "
+            "7 kunlik reja va PDF — to‘lov tasdiqlangach ochiladi."
+        ),
         "result.status_pending_title": "So‘rovingiz qabul qilindi ✅",
         "result.status_pending_text": (
             "To‘lov tasdiqlangach, batafsil natijangiz tayyorlanadi.\n"
@@ -258,13 +381,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "To‘lovni amalga oshirib, chek rasmini Telegram bot orqali yuboring."
         ),
         "result.test_code_label": "Test kodi:",
-        "result.cta_title": "To‘liq xarakter profilingizni oching",
+        "result.cta_title": "Amaliy Premium tahlilni oching",
         "result.cta_desc": (
-            "Kuchli va zaif tomonlaringiz, sizga mos kasblar, ish uslubingiz va "
-            "shaxsiy rivojlanish yo‘nalishlarini ko‘ring."
+            "Javob ballaringizga mos kuchli tomonlar va charchatadigan holatlar, "
+            "tipingiz bo‘yicha ish/munosabat tahlili, 7 kunlik amaliy reja va PDF. "
+            "AI maslahat alohida — faqat tizimda yoqilgan bo‘lsa."
         ),
         "result.cta_note": (
-            "Tasdiqlangach natija Telegram orqali yuboriladi — sahifada kutishingiz shart emas."
+            "To‘lov tasdiqlangach Premium shu sahifada ochiladi. Telegram orqali ham xabar yuboriladi."
         ),
         "result.open_premium": "Premium olish",
         "result.restart": "Testni qayta ishlash",
@@ -509,23 +633,43 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # Лендинг
         "landing.title": "Тест характера и стиля жизни",
         "landing.eyebrow": "ТЕСТ ХАРАКТЕРА И СТИЛЯ ЖИЗНИ",
-        "landing.headline": "Вы не ленивы",
-        "landing.lead": "Возможно, вы просто действуете способом, который вам не подходит.",
+        "landing.headline": "Какой вы человек на самом деле?",
+        "landing.lead": "Поймите себя лучше и научитесь опираться на свои сильные стороны.",
         "landing.copy": (
-            "Определите сильные стороны своего характера, причины падения мотивации "
-            "и подходящий вам стиль работы и общения."
+            "24 жизненных вопроса помогут увидеть, как вы обычно общаетесь, "
+            "принимаете решения и планируете."
         ),
         "landing.meta_aria": "О тесте",
         "landing.meta_questions": "24 вопроса",
-        "landing.meta_minutes": "4 минуты",
-        "landing.meta_personal": "Личный результат",
-        "landing.cta": "Узнать свой характер",
+        "landing.meta_questions_desc": "Простые жизненные ситуации",
+        "landing.meta_minutes": "4–5 минут",
+        "landing.meta_minutes_desc": "Коротко и понятно",
+        "landing.meta_personal": "Разбор характера",
+        "landing.meta_personal_desc": "Личное описание и рекомендации",
+        "landing.cta": "Начать тест бесплатно",
+        "landing.free_note": "Начальный результат бесплатно.",
+        "landing.benefits_title": "Что вы получите от теста?",
+        "landing.benefit_1_title": "Лучше понять себя",
+        "landing.benefit_1_text": "Узнайте, как вы обычно общаетесь и принимаете решения.",
+        "landing.benefit_2_title": "Узнать свои сильные стороны",
+        "landing.benefit_2_text": "Получите описание личных особенностей на основе ваших ответов.",
+        "landing.benefit_3_title": "Практические рекомендации",
+        "landing.benefit_3_text": "Небольшие шаги, которые можно попробовать в повседневной жизни.",
+        "landing.method_title": "Как работает тест?",
+        "landing.method_text": (
+            "Тест Xarakterim вдохновлён четырьмя направлениями личности в стиле MBTI. "
+            "Результаты — это рекомендации на основе ваших ответов, а не клинический "
+            "или профессиональный психологический диагноз."
+        ),
         "landing.hero_alt": "Тест на понимание характера",
         # Инструкция
-        "instructions.title": "Перед тестом",
+        "instructions.title": "Готовы к тесту?",
         "instructions.text": (
-            "Отвечайте не так, как вам хотелось бы поступать, а так, как вы обычно поступаете на самом деле."
+            "Отвечайте не так, каким человеком вы хотели бы быть, а так, как вы обычно поступаете."
         ),
+        "instructions.point_closest": "Выберите ответ, который вам ближе всего.",
+        "instructions.point_free": "После всех вопросов вы бесплатно увидите начальный результат.",
+        "instructions.gender_invalid": "Некорректное значение. Начните тест ещё раз.",
         "instructions.gender_group": "Выберите пол",
         "instructions.female": "Женщина",
         "instructions.male": "Мужчина",
@@ -586,10 +730,74 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
             "Результат показывает наиболее близкое вам направление характера. "
             "Это не медицинский и не психологический диагноз."
         ),
-        "result.section.who": "Какой вы человек?",
+        "result.section.who": "Что видно по вашим ответам",
+        "result.mixed_heading": "Ваши ответы получились смешанными",
         "result.section.example": "Жизненный пример",
-        "result.strengths": "Сильные стороны",
-        "result.challenges": "Сложные стороны",
+        "result.strengths": "Что может вам помочь",
+        "result.challenges": "На что можно обратить внимание?",
+        "result.daily_tips": "Практические шаги",
+        "result.try_today": "Попробуйте сегодня",
+        "result.formed.title": "Как сложился ваш результат?",
+        "result.formed.ei.title": "Ваш стиль общения",
+        "result.formed.ei.e": "В ответах чаще проявлялось общение с людьми и готовность начать разговор.",
+        "result.formed.ei.i": "В ответах чаще проявлялись более тихая обстановка и меньший круг людей.",
+        "result.formed.ei.close_e": (
+            "Общение с людьми проявилось чуть чаще, но и более спокойный формат оказался рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.ei.close_i": (
+            "Более спокойный формат проявился чуть чаще, но и общение с людьми оказалось рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.ei.tie": (
+            "Общение с людьми и более спокойный формат проявились одинаково. "
+            "Стиль общения нельзя отнести к одной стороне."
+        ),
+        "result.formed.sn.title": "Как вы воспринимаете информацию",
+        "result.formed.sn.s": "В ответах чаще проявлялся взгляд на конкретные факты и текущую ситуацию.",
+        "result.formed.sn.n": "В ответах чаще проявлялись возможности и мысли о следующем шаге.",
+        "result.formed.sn.close_s": (
+            "Взгляд на факты проявился чуть чаще, но и мысли о возможностях оказались рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.sn.close_n": (
+            "Мысли о возможностях проявились чуть чаще, но и взгляд на факты оказался рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.sn.tie": (
+            "Взгляд на факты и мысли о возможностях проявились одинаково. "
+            "Этот стиль нельзя отнести к одной стороне."
+        ),
+        "result.formed.tf.title": "Как вы принимаете решения",
+        "result.formed.tf.t": "В ответах чаще проявлялся взгляд на причину и результат.",
+        "result.formed.tf.f": "В ответах чаще проявлялись состояние человека и отношения.",
+        "result.formed.tf.close_t": (
+            "Взгляд на причину и результат проявился чуть чаще, но и внимание к человеку оказалось рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.tf.close_f": (
+            "Внимание к человеку проявилось чуть чаще, но и взгляд на причину и результат оказался рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.tf.tie": (
+            "Взгляд на причину и внимание к человеку проявились одинаково. "
+            "Стиль решений нельзя отнести к одной стороне."
+        ),
+        "result.formed.jp.title": "Ваш стиль планирования",
+        "result.formed.jp.j": "В ответах чаще проявлялось планирование заранее.",
+        "result.formed.jp.p": "В ответах чаще проявлялась готовность подстраиваться под ситуацию.",
+        "result.formed.jp.close_j": (
+            "Планирование заранее проявилось чуть чаще, но и гибкость оказалась рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.jp.close_p": (
+            "Гибкость проявилась чуть чаще, но и планирование заранее оказалось рядом. "
+            "Разница небольшая, поэтому это не твёрдый вывод."
+        ),
+        "result.formed.jp.tie": (
+            "Планирование заранее и гибкость проявились одинаково. "
+            "Стиль планирования нельзя отнести к одной стороне."
+        ),
         # Полюса шкал
         "dimension.i": "Интроверт (I)",
         "dimension.e": "Экстраверт (E)",
@@ -678,13 +886,36 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "result.premium.relationships": "Отношения с людьми",
         "result.premium.actions": "Практичный план на 7 дней",
-        "result.premium.brief.teaser": "Как это может проявляться в обычных днях.",
-        "result.premium.strengths.teaser": "Где можно опереться на каждую сильную сторону.",
-        "result.premium.drains.teaser": "Три ситуации, которые могут утомлять, и по одному шагу.",
-        "result.premium.work.teaser": "Какая среда, задачи и стиль команды могут быть удобнее.",
-        "result.premium.relationships.teaser": "Что можно сделать в дружбе, близости и споре.",
-        "result.premium.actions.teaser": "Семь дней: каждый день одно дело на 5–15 минут.",
-        "result.locked_note": "Премиум-анализ откроется после подтверждения оплаты.",
+        "result.premium.brief.teaser": (
+            "Как это может проявляться в обычных днях — по баллам ответов и типу."
+        ),
+        "result.premium.strengths.teaser": (
+            "Сильные стороны по явным перевесам в баллах и где на них опереться."
+        ),
+        "result.premium.drains.teaser": "Ситуации, которые могут утомлять, и по одному шагу.",
+        "result.premium.work.teaser": (
+            "Какая среда может быть удобнее (предположение; профессии не гарантируются)."
+        ),
+        "result.premium.relationships.teaser": "Что можно сделать в дружбе и близости.",
+        "result.premium.actions.teaser": "Шаг на сегодня и практичные задачи до 7 дней.",
+        "result.premium.soft_type_note": (
+            "В некоторых направлениях баллы близки или равны. Это не твёрдый вывод — "
+            "нельзя жёстко привязать к одному типу."
+        ),
+        "result.premium.type_extra": "Дополнительный текст по типу (общее предположение):",
+        "result.premium.soft_actions_note": (
+            "Где баллы близки, план мягче: сначала короткое наблюдение, затем упражнение по типу."
+        ),
+        "result.premium.no_clear_strength": (
+            "Явного перевеса нет, поэтому одну привычку сейчас нельзя назвать сильной стороной."
+        ),
+        "result.premium.no_clear_drain": (
+            "Явного перевеса нет, поэтому усталость сейчас нельзя привязать к одной привычке."
+        ),
+        "result.locked_note": (
+            "Премиум: сильные/слабые стороны по баллам, более глубокий разбор по типу, "
+            "план на 7 дней и PDF — откроется после подтверждения оплаты."
+        ),
         "result.status_pending_title": "Оплата проверяется",
         "result.status_pending_text": (
             "Ваш чек отправлен администратору. После подтверждения откроется премиум-результат."
@@ -693,12 +924,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "result.status_awaiting_text": ("Оплатите и отправьте фото чека через Telegram-бот."),
         "result.test_code_label": "Код теста:",
         "result.refresh_status": "Обновить статус",
-        "result.cta_title": "Откройте полный профиль характера",
+        "result.cta_title": "Откройте практичный премиум-разбор",
         "result.cta_desc": (
-            "Посмотрите свои сильные и слабые стороны, подходящие профессии, "
-            "стиль работы и направления личного развития."
+            "Сильные стороны и утомляющие ситуации по баллам ответов, разбор работы и "
+            "отношений по типу, план на 7 дней и PDF. ИИ-советы отдельно — только если включены."
         ),
-        "result.cta_note": "После подтверждения оплаты результат откроется на этой странице.",
+        "result.cta_note": (
+            "После подтверждения оплаты премиум откроется на этой странице. "
+            "Сообщение также придёт в Telegram."
+        ),
         "result.open_premium": "Открыть премиум-результат",
         "result.restart": "Пройти тест заново",
         "result.currency": "сум",

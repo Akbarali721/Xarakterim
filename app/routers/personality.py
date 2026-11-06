@@ -8,7 +8,7 @@ from starlette.responses import Response
 
 from app.config import settings
 from app.dependencies import get_db_session
-from app.i18n import resolve_lang
+from app.i18n import resolve_lang, t
 from app.models.enums import AppearanceTheme, PersonalitySessionStatus
 from app.pdf import pdf_filename
 from app.personality.analytics_constants import (
@@ -17,7 +17,7 @@ from app.personality.analytics_constants import (
     INTENT_VALUES,
 )
 from app.personality.payment_code import payment_code_for_session
-from app.personality.result_free_content import free_result_sections
+from app.personality.result_personalization import build_result_profile
 from app.personality.result_guidance import (
     action_plan_text,
     get_growth_areas,
@@ -53,7 +53,7 @@ from app.personality.webapp_access import mark_webapp_bound
 from app.ratelimit import limiter as advice_limiter
 from app.repositories.personality_repository import PersonalityRepository
 from app.services import ai_advice_service, referral_service
-from app.services.personality_scoring import calculate_personality_result
+from app.services.personality_scoring import personality_result_from_stored
 from app.services.personality_service import PersonalityService
 from app.services.premium_access import has_premium_access, trial_days_left
 from app.services.premium_payment_service import (
@@ -165,7 +165,8 @@ def personality_history(
             "title": _result_title(repo, session.result_type, lang),
             "completed_at": session.completed_at,
             "is_premium": has_premium_access(session),
-            "result": calculate_personality_result(
+            "result": personality_result_from_stored(
+                session.result_type or "",
                 session.e_score,
                 session.i_score,
                 session.s_score,
@@ -174,6 +175,10 @@ def personality_history(
                 session.f_score,
                 session.j_score,
                 session.p_score,
+                ei_low_confidence=session.ei_low_confidence,
+                sn_low_confidence=session.sn_low_confidence,
+                tf_low_confidence=session.tf_low_confidence,
+                jp_low_confidence=session.jp_low_confidence,
             ),
         }
         for session in sessions
@@ -312,18 +317,18 @@ def personality_start(
     if not session:
         session = bind_personality_session(request, db)
 
-    if not gender or gender not in ALLOWED_APPEARANCE_VALUES:
+    if gender and gender not in ALLOWED_APPEARANCE_VALUES:
         return templates.TemplateResponse(
             request,
             "personality/instructions.html",
             _instructions_context(
                 session,
-                gender_error="Davom etish uchun jinsingizni tanlang.",
+                gender_error=t("instructions.gender_invalid", resolve_lang(request)),
             ),
             status_code=400,
         )
 
-    theme = AppearanceTheme(gender)
+    theme = AppearanceTheme(gender) if gender in ALLOWED_APPEARANCE_VALUES else None
     service = PersonalityService(db)
     session = service.prepare_test_start(session, theme)
     db.commit()
@@ -342,9 +347,6 @@ def personality_intent_get(
     advanced = redirect_for_session_progress(session)
     if advanced:
         return advanced
-
-    if not has_appearance_choice(session):
-        return RedirectResponse(url="/personality/instructions", status_code=303)
 
     if not session_needs_intent(session):
         return RedirectResponse(url=f"/personality/test/{session.token}?q=0", status_code=303)
@@ -369,9 +371,6 @@ def personality_intent_post(
     if not session:
         session = bind_personality_session(request, db)
 
-    if not has_appearance_choice(session):
-        return RedirectResponse(url="/personality/instructions", status_code=303)
-
     if intent not in INTENT_VALUES:
         ctx = _themed_context(session)
         ctx["intent_options"] = [
@@ -388,12 +387,6 @@ def personality_intent_post(
     return RedirectResponse(url=f"/personality/test/{session.token}?q=0", status_code=303)
 
 
-def _require_appearance_or_redirect(session) -> RedirectResponse | None:
-    if not has_appearance_choice(session):
-        return RedirectResponse(url="/personality/instructions", status_code=303)
-    return None
-
-
 @router.get("/test/{token}", response_class=HTMLResponse, response_model=None)
 def personality_test(
     request: Request,
@@ -406,9 +399,6 @@ def personality_test(
         return denied
     service = PersonalityService(db)
     session = service.get_session_or_404(token)
-    appearance_redirect = _require_appearance_or_redirect(session)
-    if appearance_redirect:
-        return appearance_redirect
     intent_redirect = redirect_for_intent_or_none(session)
     if intent_redirect:
         return intent_redirect
@@ -487,9 +477,6 @@ def personality_loading(
         return denied
     service = PersonalityService(db)
     session = service.get_session_or_404(token)
-    appearance_redirect = _require_appearance_or_redirect(session)
-    if appearance_redirect:
-        return appearance_redirect
     ctx = _themed_context(session)
     ctx["token"] = token
     return templates.TemplateResponse(request, "personality/loading.html", ctx)
@@ -557,9 +544,6 @@ def personality_result(
     lang = resolve_lang(request)
     view = service.get_result_view(token, language=lang)
     session = view["session"]
-    appearance_redirect = _require_appearance_or_redirect(session)
-    if appearance_redirect:
-        return appearance_redirect
     content = view["content"]
     result = view["result"]
     payment_status = PremiumPaymentService(db).get_result_payment_status(session)
@@ -575,13 +559,26 @@ def personality_result(
     week_plan: list[dict[str, str | int]] | None = None
     action_plan_override: str | None = None
     growth_week_by_id: dict[str, list[dict[str, str | int]]] | None = None
-    free_challenges, daily_tips = free_result_sections(session.result_type or "", language=lang)
+    profile = build_result_profile(
+        e=session.e_score,
+        i=session.i_score,
+        s=session.s_score,
+        n=session.n_score,
+        t=session.t_score,
+        f=session.f_score,
+        j=session.j_score,
+        p=session.p_score,
+        language=lang,
+        intent=session.intent,
+    )
     if growth_pair:
         focus_area = resolve_focus_area(growth_pair, focus)
         growth_summaries = [
             {"id": a["id"], "name": a["name"], "situation": a["situation"]} for a in growth_pair
         ]
-        if has_premium_access(session):
+        # Tipga qat'iy bog'lanish faqat free bilan bir xil ishonchda: ballar aralash
+        # bo'lsa tip katalogidagi 7 kunlik reja Premiumni chalkashtirmasin.
+        if has_premium_access(session) and profile["show_type_heading"]:
             growth_week_by_id = {a["id"]: premium_week_plan(a) for a in growth_pair}
             week_plan = growth_week_by_id[focus_area["id"]]
             action_plan_override = action_plan_text(focus_area)
@@ -597,8 +594,15 @@ def personality_result(
             "result": result,
             "strengths": view["strengths"],
             "challenges": view["challenges"],
-            "free_challenges": free_challenges,
-            "daily_tips": daily_tips,
+            "show_type_heading": profile["show_type_heading"],
+            "preference_summary": profile["summary"],
+            "dimension_notes": profile["notes"],
+            "preference_strengths": profile["strengths"],
+            "strength_note": profile["strength_note"],
+            "preference_challenges": profile["challenges"],
+            "challenge_note": profile["challenge_note"],
+            "daily_tips": profile["tips"],
+            "today_action": profile["today"],
             # Premium bo'limlar TO'LOV yoki MUKOFOT bilan ochiladi; PDF esa faqat
             # to'lov bilan — yuklab olingan fayl sinov muddatidan keyin ham qoladi.
             "is_premium": has_premium_access(session),
@@ -621,8 +625,8 @@ def personality_result(
             "premium_deeplink_url": deeplink_url,
             # Deep link sozlanmagan holat uchun zaxira: server tomonda yo'naltiradi.
             "support_bot_open_url": f"/personality/result/{token}/support-bot",
-            "growth_summaries": growth_summaries,
-            "growth_focus_id": focus_area["id"] if focus_area else None,
+            "growth_summaries": growth_summaries if profile["show_type_heading"] else [],
+            "growth_focus_id": focus_area["id"] if focus_area and profile["show_type_heading"] else None,
             "week_plan": week_plan,
             "growth_week_by_id": growth_week_by_id,
             "premium_blocks": compose_premium_blocks(
@@ -631,6 +635,7 @@ def personality_result(
                 view["challenges"],
                 language=lang,
                 action_plan_override=action_plan_override,
+                profile=profile,
             ),
             "user_feedback_submitted": ResultUserFeedbackService(db).get_for_session(session.id) is not None,
         }

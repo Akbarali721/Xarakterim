@@ -29,6 +29,8 @@ LOCAL_URL_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 # Shablonlar faqat /static dan foydalanadi (bootstrap va shriftlar self-host qilingan),
 # shuning uchun tashqi manbalarga ruxsat yo'q. 'unsafe-inline' faqat style uchun kerak:
 # progress chiziqlari inline style atributi bilan chiziladi.
+# script-src: faqat o'z /static va rasmiy Telegram WebApp SDK (base.html).
+# CSP ni o'chirmaymiz — boshqa CDN/domenlarga ruxsat yo'q.
 DEFAULT_CSP = (
     "default-src 'self'; "
     "base-uri 'self'; "
@@ -38,7 +40,7 @@ DEFAULT_CSP = (
     "img-src 'self' data:; "
     "style-src 'self' 'unsafe-inline'; "
     "font-src 'self'; "
-    "script-src 'self'; "
+    "script-src 'self' https://telegram.org; "
     "connect-src 'self'"
 )
 
@@ -136,8 +138,9 @@ class Settings(BaseSettings):
     telegram_bot_token: str = ""
     web_app_url: str = ""
     premium_price: int = 9990
-    # Savol to'plamlari taqsimoti: "A" yoki vaznli "A:70,B:30".
-    question_variants: str = "A"
+    # Yangi sessiyalar V2 savol to'plamini oladi. Eski sessiyalar o'z variantida qoladi.
+    # "A" — muzlatilgan V1 bank. A/B taqsimot kerak bo'lsa "V2:70,B:30" kabi yoziladi.
+    question_variants: str = "V2"
     payment_card_number: str = ""
     payment_card_holder: str = ""
     payment_support_bot_username: str = ""

@@ -39,19 +39,28 @@
         <span class="ref-meta-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><path d="M7 5h10v14H7z" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         </span>
-        <span class="ref-meta-label">{{ t('landing.meta_questions') }}</span>
+        <span class="ref-meta-copy">
+          <span class="ref-meta-label">{{ t('landing.meta_questions') }}</span>
+          <span class="ref-meta-desc">{{ t('landing.meta_questions_desc') }}</span>
+        </span>
       </div>
       <div class="ref-meta-item">
         <span class="ref-meta-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 9v3.5l2 1.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         </span>
-        <span class="ref-meta-label">{{ t('landing.meta_minutes') }}</span>
+        <span class="ref-meta-copy">
+          <span class="ref-meta-label">{{ t('landing.meta_minutes') }}</span>
+          <span class="ref-meta-desc">{{ t('landing.meta_minutes_desc') }}</span>
+        </span>
       </div>
       <div class="ref-meta-item">
         <span class="ref-meta-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 4.5l2.2 4.4 4.9.7-3.5 3.4.8 4.9L12 15.8l-4.4 2.3.8-4.9-3.5-3.4 4.9-.7L12 4.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
         </span>
-        <span class="ref-meta-label">{{ t('landing.meta_personal') }}</span>
+        <span class="ref-meta-copy">
+          <span class="ref-meta-label">{{ t('landing.meta_personal') }}</span>
+          <span class="ref-meta-desc">{{ t('landing.meta_personal_desc') }}</span>
+        </span>
       </div>
     </div>
 
@@ -60,11 +69,32 @@
     </form>
 
     <p class="ref-note">
-      <span class="ref-note-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5l6.5 2.8v5.9c0 3.9-2.7 6.8-6.5 7.8-3.8-1-6.5-3.9-6.5-7.8V6.3L12 3.5z" stroke="currentColor" stroke-width="1.5"/><path d="M9.2 12.2l1.8 1.8 3.8-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </span>
-      {{ t('common.no_wrong_answer') }}
+      <span class="ref-note-mark" aria-hidden="true">✓</span>
+      {{ t('landing.free_note') }}
     </p>
+  </article>
+
+  <article class="ref-card ref-card--landing ref-card--aside" aria-labelledby="landing-benefits-title">
+    <h2 class="ref-section-title" id="landing-benefits-title">{{ t('landing.benefits_title') }}</h2>
+    <div class="ref-benefit-grid">
+      <div class="ref-benefit-item">
+        <h3 class="ref-benefit-title">{{ t('landing.benefit_1_title') }}</h3>
+        <p class="ref-benefit-text">{{ t('landing.benefit_1_text') }}</p>
+      </div>
+      <div class="ref-benefit-item">
+        <h3 class="ref-benefit-title">{{ t('landing.benefit_2_title') }}</h3>
+        <p class="ref-benefit-text">{{ t('landing.benefit_2_text') }}</p>
+      </div>
+      <div class="ref-benefit-item">
+        <h3 class="ref-benefit-title">{{ t('landing.benefit_3_title') }}</h3>
+        <p class="ref-benefit-text">{{ t('landing.benefit_3_text') }}</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="ref-card ref-card--landing ref-card--aside" aria-labelledby="landing-method-title">
+    <h2 class="ref-section-title" id="landing-method-title">{{ t('landing.method_title') }}</h2>
+    <p class="ref-method-text">{{ t('landing.method_text') }}</p>
   </article>
 </section>
 {% endblock %}

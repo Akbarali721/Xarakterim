@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from app.config import settings
 from app.models.personality import DEFAULT_VARIANT, PersonalityQuestion, PersonalityTestSession
+from app.personality.constants import QUESTION_BANK_V2
 from app.personality.variants import choose_variant, known_variants, normalize_variant, parse_spec
 from app.seed.personality_placeholders import seed_personality_questions
 from app.services.admin_analytics_service import AdminAnalyticsService, VariantStats
@@ -62,7 +63,7 @@ def test_known_variants_lists_every_bucket():
 def test_session_records_its_variant(client):
     token = complete_session(client)
     with db_session(client) as db:
-        assert session_by_token(db, token).variant == DEFAULT_VARIANT
+        assert session_by_token(db, token).variant == QUESTION_BANK_V2
 
 
 def test_second_variant_can_be_seeded_alongside_the_first(client):
@@ -125,7 +126,7 @@ def test_variant_does_not_change_mid_test(client, monkeypatch):
     token = complete_session(client)
     monkeypatch.setattr(settings, "question_variants", "B")
     with db_session(client) as db:
-        assert session_by_token(db, token).variant == DEFAULT_VARIANT
+        assert session_by_token(db, token).variant == QUESTION_BANK_V2
 
 
 # --------------------------- hisobot ---------------------------
@@ -140,7 +141,7 @@ def test_variant_stats_reports_the_funnel(client):
 
     assert len(rows) == 1
     row = rows[0]
-    assert row.variant == DEFAULT_VARIANT
+    assert row.variant == QUESTION_BANK_V2
     assert row.completed >= 1
     assert row.premium == 1
 

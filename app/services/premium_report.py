@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.i18n import DEFAULT as DEFAULT_LANG
 from app.models.personality import PersonalityTestSession
+from app.personality.result_personalization import build_result_profile
 from app.services.personality_service import PersonalityService
 from app.services.premium_presentation import PremiumBlock, compose_premium_blocks
 
@@ -60,11 +61,24 @@ def build_premium_report(
         )
         for name, left, right in _DIMENSION_POLES
     )
+    profile = build_result_profile(
+        e=session_row.e_score,
+        i=session_row.i_score,
+        s=session_row.s_score,
+        n=session_row.n_score,
+        t=session_row.t_score,
+        f=session_row.f_score,
+        j=session_row.j_score,
+        p=session_row.p_score,
+        language=lang,
+        intent=session_row.intent,
+    )
     blocks = compose_premium_blocks(
         content,
         list(view["strengths"]),
         list(view["challenges"]),
         language=lang,
+        profile=profile,
     )
 
     return PremiumReport(

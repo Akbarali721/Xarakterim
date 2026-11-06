@@ -1,5 +1,10 @@
 """MBTI test sizing — bank vs per-session draw."""
 
+# V1 — bazadagi muzlatilgan savollar. Ularning variant qiymati "A"; qatorlar o'zgartirilmaydi.
+QUESTION_BANK_V1 = "A"
+# V2 — TZ-3B da kelishilgan savollar. Yangi sessiya shu to'plamga biriktiriladi.
+QUESTION_BANK_V2 = "V2"
+
 SESSION_QUESTION_COUNT = 24
 QUESTIONS_PER_DIMENSION = 6
 DIRECTION_BALANCE_PER_DIMENSION = 3

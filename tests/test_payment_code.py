@@ -3,7 +3,6 @@
 from sqlalchemy import func, select
 
 from app.config import settings
-from app.i18n import t
 from app.models.enums import PersonalitySessionStatus
 from app.models.payment_request import PaymentRequest
 from app.models.personality import PersonalityTestSession
@@ -78,6 +77,8 @@ def test_result_support_bot_flow(client, monkeypatch):
     monkeypatch.setattr(settings, "bot_username", "")
     monkeypatch.setattr(settings, "telegram_bot_username", "")
     monkeypatch.setattr(settings, "payment_support_bot_username", "xarakter_test_support_bot")
+    monkeypatch.setattr(settings, "payment_card_number", "8600 1111 2222 3333")
+    monkeypatch.setattr(settings, "payment_card_holder", "TEST")
     token = complete_session(client)
 
     page = client.get(f"/personality/result/{token}")
@@ -117,8 +118,39 @@ def test_support_bot_unconfigured(client, monkeypatch):
     monkeypatch.setattr(settings, "payment_support_bot_username", "")
     monkeypatch.setattr(settings, "bot_username", "")
     monkeypatch.setattr(settings, "telegram_bot_username", "")
+    monkeypatch.setattr(settings, "payment_card_number", "")
     token = complete_session(client)
 
     page = client.get(f"/personality/result/{token}")
-    assert "mbti-payment-unavailable" in page.text
-    assert t("payment.unavailable", "uz") in page.text
+    # Sozlanmagan to'lov: premium qulf saqlanadi, lekin noto'g'ri to'lov modali ochilmaydi.
+    assert "mbti-premium-locked-note" in page.text
+    assert 'id="open-payment-modal"' not in page.text
+    assert 'id="payment-modal"' not in page.text
+    assert "mbti-telegram-pay-btn" not in page.text
+
+
+def test_payment_cta_hidden_when_card_missing_even_if_bot_set(client, monkeypatch):
+    monkeypatch.setattr(settings, "bot_username", "")
+    monkeypatch.setattr(settings, "telegram_bot_username", "")
+    monkeypatch.setattr(settings, "payment_support_bot_username", "xarakter_test_support_bot")
+    monkeypatch.setattr(settings, "payment_card_number", "")
+    token = complete_session(client)
+
+    page = client.get(f"/personality/result/{token}")
+    assert 'id="open-payment-modal"' not in page.text
+    assert 'id="payment-modal"' not in page.text
+
+
+def test_payment_cta_shown_when_bot_and_card_configured(client, monkeypatch):
+    monkeypatch.setattr(settings, "bot_username", "")
+    monkeypatch.setattr(settings, "telegram_bot_username", "")
+    monkeypatch.setattr(settings, "payment_support_bot_username", "xarakter_test_support_bot")
+    monkeypatch.setattr(settings, "payment_card_number", "8600 0000 0000 0000")
+    monkeypatch.setattr(settings, "payment_card_holder", "TEST HOLDER")
+    token = complete_session(client)
+
+    page = client.get(f"/personality/result/{token}")
+    assert 'id="open-payment-modal"' in page.text
+    assert 'id="payment-modal"' in page.text
+    assert "mbti-telegram-pay-btn" in page.text
+    assert "8600 0000 0000 0000" in page.text

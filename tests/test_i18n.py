@@ -3,7 +3,13 @@
 from app.i18n import DEFAULT, LANG_COOKIE_KEY, normalize_lang, resolve_lang, t
 from app.repositories.personality_repository import PersonalityRepository
 from app.seed.personality_placeholders import seed_personality_results
+from app.seed.personality_placeholders import DIMENSION_POLES
 from tests.helpers import complete_session, db_session, session_by_token
+
+
+def _favor_left(question):
+    left, _right = DIMENSION_POLES[question.dimension]
+    return 0 if question.primary_pole == left else 3
 
 
 def test_normalize_lang_accepts_region_codes_and_rejects_the_rest():
@@ -65,7 +71,7 @@ def test_language_switcher_keeps_the_current_path_and_query(client):
 
 def test_result_content_falls_back_to_uzbek_when_translation_is_missing(client):
     """Fixture faqat "uz" kontentini yuklaydi: interfeys ruscha, matn oʻzbekcha qoladi."""
-    token = complete_session(client)
+    token = complete_session(client, option_picker=_favor_left)
     page = client.get(f"/personality/result/{token}?lang=ru")
 
     assert page.status_code == 200
@@ -78,7 +84,7 @@ def test_result_content_falls_back_to_uzbek_when_translation_is_missing(client):
 
 
 def test_russian_result_content_is_used_when_it_is_seeded(client):
-    token = complete_session(client)
+    token = complete_session(client, option_picker=_favor_left)
     with db_session(client) as db:
         seed_personality_results(db, language="ru")
         result_type = session_by_token(db, token).result_type

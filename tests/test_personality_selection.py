@@ -93,6 +93,47 @@ def test_different_sessions_can_differ(client):
         assert ids_a != ids_b
 
 
+def test_each_block_of_four_has_one_question_from_each_dimension(client):
+    dimensions = {
+        PersonalityDimension.EI,
+        PersonalityDimension.SN,
+        PersonalityDimension.TF,
+        PersonalityDimension.JP,
+    }
+    with db_session(client) as db:
+        for seed in ("block-a", "block-b", "block-c", "block-d"):
+            session = PersonalityRepository(db).create_session(source="test")
+            questions = ensure_session_questions(db, session, rng=random.Random(seed))
+            assert len(questions) == SESSION_QUESTION_COUNT
+            for start in range(0, SESSION_QUESTION_COUNT, 4):
+                block = questions[start : start + 4]
+                assert {question.dimension for question in block} == dimensions
+
+
+def test_saved_order_is_kept_even_when_it_is_not_blocked(client):
+    with db_session(client) as db:
+        session = PersonalityRepository(db).create_session(source="test")
+        original = ensure_session_questions(db, session, rng=random.Random("keep"))
+        original_ids = [question.id for question in original]
+        links = list(
+            db.scalars(
+                select(PersonalitySessionQuestion).where(
+                    PersonalitySessionQuestion.session_id == session.id
+                )
+            ).all()
+        )
+        by_question = {link.question_id: link.display_order for link in links}
+        for link in links:
+            link.display_order = by_question[link.question_id] + 50
+        db.flush()
+        for link in links:
+            link.display_order = SESSION_QUESTION_COUNT - 1 - by_question[link.question_id]
+        db.commit()
+        db.expire_all()
+        again = ensure_session_questions(db, session, rng=random.Random("other-seed"))
+        assert [question.id for question in again] == list(reversed(original_ids))
+
+
 def test_no_more_than_two_consecutive_same_dimension(client):
     with db_session(client) as db:
         session = PersonalityRepository(db).create_session(source="test")

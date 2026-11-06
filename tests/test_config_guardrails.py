@@ -83,7 +83,17 @@ def test_debug_mode_hashes_a_plaintext_admin_password():
 def test_blank_optional_values_fall_back_to_defaults():
     settings = _settings(content_security_policy="", log_level="  ", secure_cookies="")
     assert "frame-ancestors 'none'" in settings.content_security_policy
+    assert "script-src 'self' https://telegram.org" in settings.content_security_policy
+    assert "script-src *" not in settings.content_security_policy
     assert settings.log_level == "INFO"
     # secure_cookies avtomatik: DEBUG=false da yoqiladi.
     assert settings.secure_cookies is None
     assert settings.secure_cookies_enabled is True
+
+
+def test_default_csp_allows_only_telegram_org_sdk():
+    settings = _settings()
+    csp = settings.content_security_policy
+    assert "https://telegram.org" in csp
+    assert "cdn.jsdelivr.net" not in csp
+    assert "unsafe-eval" not in csp

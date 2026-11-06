@@ -18,7 +18,6 @@ from app.models.personality import (
 )
 from app.personality.constants import (
     DIRECTION_BALANCE_PER_DIMENSION,
-    MAX_CONSECUTIVE_SAME_DIMENSION,
     QUESTIONS_PER_DIMENSION,
     SESSION_QUESTION_COUNT,
 )
@@ -124,45 +123,31 @@ def _pick_balanced(
     return chosen
 
 
-def _has_long_dimension_run(questions: list[PersonalityQuestion], max_run: int) -> bool:
-    run = 0
-    prev: PersonalityDimension | None = None
-    for question in questions:
-        if question.dimension == prev:
-            run += 1
-            if run >= max_run:
-                return True
-        else:
-            prev = question.dimension
-            run = 1
-    return False
-
-
-def _shuffle_with_dimension_cap(
+def _order_in_balanced_blocks(
     questions: list[PersonalityQuestion],
     *,
     rng: random.Random,
-    max_run: int = MAX_CONSECUTIVE_SAME_DIMENSION,
 ) -> list[PersonalityQuestion]:
-    items = list(questions)
-    for _ in range(500):
-        rng.shuffle(items)
-        if not _has_long_dimension_run(items, max_run + 1):
-            return items
-    # Greedy fallback: round-robin by dimension buckets, then shuffle within ties.
+    """Six blocks of four: one question from each dimension, order shuffled inside the block.
+
+    Questions already chosen for a dimension stay in that dimension. Only their place
+    in the session changes. Scoring reads option weights, not this order.
+    """
     by_dim: dict[PersonalityDimension, list[PersonalityQuestion]] = {d: [] for d in _DIMENSIONS}
-    for q in questions:
-        by_dim[q.dimension].append(q)
+    for question in questions:
+        by_dim[question.dimension].append(question)
     for bucket in by_dim.values():
         rng.shuffle(bucket)
-    merged: list[PersonalityQuestion] = []
-    while len(merged) < len(questions):
-        for dim in _DIMENSIONS:
-            if by_dim[dim]:
-                merged.append(by_dim[dim].pop())
-    if _has_long_dimension_run(merged, max_run + 1):
-        rng.shuffle(merged)
-    return merged
+    sizes = {len(bucket) for bucket in by_dim.values()}
+    if sizes != {QUESTIONS_PER_DIMENSION}:
+        raise ValueError("Each dimension must contribute exactly 6 questions before ordering")
+    ordered: list[PersonalityQuestion] = []
+    for index in range(QUESTIONS_PER_DIMENSION):
+        group = list(_DIMENSIONS)
+        rng.shuffle(group)
+        for dimension in group:
+            ordered.append(by_dim[dimension][index])
+    return ordered
 
 
 def select_session_questions(
@@ -172,7 +157,7 @@ def select_session_questions(
     variant: str = DEFAULT_VARIANT,
     rng: random.Random | None = None,
 ) -> list[PersonalityQuestion]:
-    """Pick 6×4 stratified questions, balance primary pole, shuffle order."""
+    """Pick 6×4 stratified questions, balance primary pole, then block the order."""
     generator = rng or session_rng(session)
     stmt = (
         select(PersonalityQuestion)
@@ -211,7 +196,7 @@ def select_session_questions(
         raise ValueError("Selection must contain 24 questions")
     validate_session_question_selection(selected)
 
-    ordered = _shuffle_with_dimension_cap(selected, rng=generator)
+    ordered = _order_in_balanced_blocks(selected, rng=generator)
     validate_session_question_selection(ordered)
     return ordered
 

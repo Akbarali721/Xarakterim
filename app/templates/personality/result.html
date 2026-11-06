@@ -10,39 +10,70 @@
 {# payment_status: unpaid / awaiting_receipt / reviewing / approved #}
 {% set is_reviewing = payment_status == 'reviewing' %}
 {% set is_awaiting_receipt = payment_status == 'awaiting_receipt' %}
-{% set can_pay = payment_status in ['unpaid', 'awaiting_receipt'] %}
+{# To'lov tugmasi faqat bot + karta sozlanganda: aks holda bo'sh modal / yopiq Telegram oqimi. #}
+{% set payment_ready = payment_support_configured and payment_card_number %}
+{% set can_pay = payment_status in ['unpaid', 'awaiting_receipt'] and payment_ready %}
 {% set telegram_pay_url = premium_deeplink_url or support_bot_open_url %}
 <section class="ref-shell ref-shell--flow {{ theme_class }}">
   <article class="ref-card mbti-flow-card mbti-result-page">
     {% include "personality/partials/brand_logo.html" %}
 
-    <h1 class="mbti-flow-title">{{ content.title }}</h1>
+    <h1 class="mbti-flow-title">{% if show_type_heading %}{{ content.title }}{% else %}{{ t('result.mixed_heading') }}{% endif %}</h1>
 
     <div class="mbti-disclaimer">
       {{ t('result.disclaimer') }}
     </div>
 
     <h2 class="mbti-section-title">{{ t('result.section.who') }}</h2>
-    {% set who_parts = content.short_description.split('\n\n', 1) %}
-    <p class="mbti-flow-text mbti-flow-text--left">{{ who_parts[0] }}</p>
-    {% if who_parts|length > 1 %}
-    <h2 class="mbti-section-title">{{ t('result.section.example') }}</h2>
-    <p class="mbti-flow-text mbti-flow-text--left">{{ who_parts[1] }}</p>
+    <div class="mbti-summary">
+      {% for paragraph in preference_summary %}
+      <p class="mbti-flow-text mbti-flow-text--left">{{ paragraph }}</p>
+      {% endfor %}
+    </div>
+
+    {% if dimension_notes %}
+    <h2 class="mbti-section-title">{{ t('result.formed.title') }}</h2>
+    <div class="mbti-formed">
+      {% for note in dimension_notes %}
+      <div class="mbti-formed-item{% if note.ambiguous %} is-ambiguous{% endif %}">
+        <h3>{{ note.title }}</h3>
+        <p>{{ note.body }}</p>
+        {% if note.example %}
+        <p class="mbti-formed-example">{{ note.example }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
 
     <h2 class="mbti-section-title">{{ t('result.strengths') }}</h2>
-    <ul class="mbti-list">
-      {% for item in strengths %}
-      <li>{{ item }}</li>
+    {% if preference_strengths %}
+    <div class="mbti-formed">
+      {% for item in preference_strengths %}
+      <article class="mbti-formed-item">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.meaning }}</p>
+        <p>{{ item.helps }}</p>
+      </article>
       {% endfor %}
-    </ul>
+    </div>
+    {% elif strength_note %}
+    <p class="mbti-flow-text mbti-flow-text--left">{{ strength_note }}</p>
+    {% endif %}
 
     <h2 class="mbti-section-title">{{ t('result.challenges') }}</h2>
-    <ul class="mbti-list">
-      {% for item in free_challenges %}
-      <li>{{ item }}</li>
+    {% if preference_challenges %}
+    <div class="mbti-formed">
+      {% for item in preference_challenges %}
+      <article class="mbti-formed-item">
+        <p>{{ item.lead }}</p>
+        <p>{{ item.response }}</p>
+      </article>
       {% endfor %}
-    </ul>
+    </div>
+    {% elif challenge_note %}
+    <p class="mbti-flow-text mbti-flow-text--left">{{ challenge_note }}</p>
+    {% endif %}
 
     <h2 class="mbti-section-title">{{ t('result.daily_tips') }}</h2>
     <ul class="mbti-list">
@@ -50,6 +81,11 @@
       <li>{{ item }}</li>
       {% endfor %}
     </ul>
+
+    {% if today_action %}
+    <h2 class="mbti-section-title">{{ t('result.try_today') }}</h2>
+    <p class="mbti-today">{{ today_action }}</p>
+    {% endif %}
 
     <hr class="mbti-flow-divider">
 

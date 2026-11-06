@@ -14,7 +14,7 @@ from app.personality.constants import SESSION_QUESTION_COUNT
 from app.repositories.personality_repository import PersonalityRepository
 from app.services import referral_service
 from app.services.notification_outbox import REFERRAL_REWARD, dedup_key, enqueue
-from app.services.personality_scoring import calculate_personality_result
+from app.services.personality_scoring import personality_result_from_stored
 from app.services.premium_payment_service import PremiumPaymentService
 
 logger = logging.getLogger(__name__)
@@ -164,7 +164,8 @@ class PersonalityService:
                 detail=f"Result content missing for {session.result_type}",
             )
 
-        result = calculate_personality_result(
+        result = personality_result_from_stored(
+            session.result_type,
             session.e_score,
             session.i_score,
             session.s_score,
@@ -173,6 +174,10 @@ class PersonalityService:
             session.f_score,
             session.j_score,
             session.p_score,
+            ei_low_confidence=session.ei_low_confidence,
+            sn_low_confidence=session.sn_low_confidence,
+            tf_low_confidence=session.tf_low_confidence,
+            jp_low_confidence=session.jp_low_confidence,
         )
 
         return {
@@ -214,10 +219,11 @@ class PersonalityService:
     def prepare_test_start(
         self,
         session: PersonalityTestSession,
-        theme: AppearanceTheme,
+        theme: AppearanceTheme | None = None,
     ) -> PersonalityTestSession:
-        """Bind gender/theme and persist the session question draw before opening question 1."""
-        self.repo.set_appearance_theme(session, theme)
+        """Persist the question draw. A visual theme is stored only when one is chosen."""
+        if theme is not None:
+            self.repo.set_appearance_theme(session, theme)
         self.repo.get_session_questions_ordered(session)
         self.repo.db.flush()
         self.repo.db.refresh(session)

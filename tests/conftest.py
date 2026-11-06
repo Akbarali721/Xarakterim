@@ -19,6 +19,7 @@ os.environ["BOT_USERNAME"] = ""
 os.environ["TELEGRAM_BOT_USERNAME"] = ""
 os.environ["PAYMENT_SUPPORT_BOT_USERNAME"] = ""
 os.environ["REFERRAL_REQUIRED_COMPLETIONS"] = "2"
+os.environ["QUESTION_VARIANTS"] = "V2"
 os.environ.setdefault("ADMIN_USERNAME", ADMIN_USERNAME)
 os.environ.setdefault("ADMIN_PASSWORD", ADMIN_PASSWORD)
 os.environ.setdefault("ADMIN_PASSWORD_HASH", _test_pwd_context.hash(ADMIN_PASSWORD))
@@ -32,6 +33,7 @@ from sqlalchemy.pool import StaticPool
 from app.database import Base, get_db, session_scope
 from app.main import app
 from app.routers import admin
+from app.personality.constants import QUESTION_BANK_V2
 from app.seed.personality_placeholders import seed_personality_questions, seed_personality_results
 
 
@@ -55,6 +57,7 @@ def client():
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     seed_personality_questions(db)
+    seed_personality_questions(db, variant=QUESTION_BANK_V2)
     seed_personality_results(db)
     db.close()
 

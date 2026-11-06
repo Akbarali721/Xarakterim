@@ -7,9 +7,8 @@ qattiq yozilgan marketing jumlalariga emas.
 import re
 
 from app.i18n import t
-from app.models.enums import AppearanceTheme
 from app.personality.session_binding import make_result_access_token
-from app.personality.themes import has_appearance_choice, resolve_theme_key
+from app.personality.themes import has_appearance_choice
 from tests.helpers import (
     admin_login,
     answer_question,
@@ -35,6 +34,11 @@ def test_personality_full_flow_and_premium_grant(client):
     assert BRAND_LOGO_MARKER not in landing.text
     assert "personality-hero-image" in landing.text
     assert "images/personality/personality-hero.webp" in landing.text
+    assert t("landing.cta", "uz") in landing.text
+    assert t("landing.free_note", "uz") in landing.text
+    assert t("landing.benefits_title", "uz") in landing.text
+    assert t("landing.method_text", "uz") in landing.text
+    assert t("landing.meta_personal", "uz") in landing.text
 
     token = start_session(client, "male")
 
@@ -134,12 +138,18 @@ def test_start_redirect_reaches_first_question_without_second_post(client):
     assert "gender-selector" not in after_intent.text
 
 
-def test_start_without_gender_shows_error(client):
+def test_start_without_gender_reaches_intent(client):
     client.get("/personality/instructions")
     post = client.post("/personality/start", data={}, follow_redirects=False)
-    assert post.status_code == 400
-    assert 'class="ref-alert"' in post.text
-    assert "jinsingizni tanlang" in post.text
+    assert post.status_code == 303
+    assert post.headers["location"] == "/personality/intent"
+    with db_session(client) as db:
+        row = latest_session(db)
+        assert row.appearance_theme is None
+        assert has_appearance_choice(row) is False
+    intent = client.get("/personality/intent")
+    assert intent.status_code == 200
+    assert "gender-selector" not in intent.text
 
 
 def test_invalid_gender_rejected_on_start(client):
@@ -147,9 +157,12 @@ def test_invalid_gender_rejected_on_start(client):
     post = client.post("/personality/start", data={"gender": "neutral"}, follow_redirects=False)
     assert post.status_code == 400
     assert 'class="ref-alert"' in post.text
+    assert t("instructions.gender_invalid", "uz") in post.text
+    with db_session(client) as db:
+        assert latest_session(db).appearance_theme is None
 
 
-def test_old_session_without_appearance_redirects_to_instructions(client):
+def test_null_theme_session_can_open_intent_and_first_question(client):
     client.get("/personality/instructions")
 
     with db_session(client) as db:
@@ -157,11 +170,28 @@ def test_old_session_without_appearance_redirects_to_instructions(client):
         token = row.token
         assert row.appearance_theme is None
         assert has_appearance_choice(row) is False
-        assert resolve_theme_key(row) == AppearanceTheme.MALE.value
 
     test_page = client.get(f"/personality/test/{token}?q=0", follow_redirects=False)
     assert test_page.status_code == 303
-    assert test_page.headers["location"] == "/personality/instructions"
+    assert test_page.headers["location"] == "/personality/intent"
+
+    intent = client.get("/personality/intent")
+    assert intent.status_code == 200
+    assert t("intent.title", "uz") in intent.text
+
+    started = client.post(
+        "/personality/intent",
+        data={"intent": "curiosity"},
+        follow_redirects=False,
+    )
+    assert started.status_code == 303
+    assert started.headers["location"] == f"/personality/test/{token}?q=0"
+
+    question = client.get(f"/personality/test/{token}?q=0")
+    assert question.status_code == 200
+    assert 'name="question_id"' in question.text
+    assert "theme-male" not in question.text
+    assert "theme-female" not in question.text
 
 
 def test_instructions_shows_single_logo(client):
@@ -169,7 +199,10 @@ def test_instructions_shows_single_logo(client):
     assert page.status_code == 200
     assert page.text.count(BRAND_LOGO_MARKER) == 1
     assert t("instructions.title", "uz") in page.text
-    assert "gender-selector" in page.text
+    assert t("instructions.point_closest", "uz") in page.text
+    assert t("instructions.point_free", "uz") in page.text
+    assert t("common.no_wrong_answer", "uz") in page.text
+    assert "gender-selector" not in page.text
 
 
 def test_relationship_route_still_available(client):

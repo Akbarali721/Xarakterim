@@ -45,13 +45,14 @@ def test_result_page_shows_daily_tips_for_free_user(client):
     html = client.get(f"/personality/result/{token}").text
     assert t("result.daily_tips", "uz") in html
     assert "growth-week-data" not in html
+    assert "Ikki kichik variantni yozing" in html
     with db_session(client) as db:
         ptype = session_by_token(db, token).result_type
-    tips = get_result_copy(ptype)["daily_tips"]
-    assert tips[0] in html
+    assert get_result_copy(ptype)["daily_tips"][0] not in html
 
 
 def test_focus_query_does_not_break_free_result_page(client):
+    from app.i18n import t
     from tests.helpers import complete_session, db_session, session_by_token
 
     token = complete_session(client)
@@ -61,4 +62,5 @@ def test_focus_query_does_not_break_free_result_page(client):
     other = areas[1]["id"]
     focused = client.get(f"/personality/result/{token}?focus={other}").text
     assert "Tip:" not in focused
-    assert get_result_copy(ptype)["daily_tips"][0] in focused
+    assert t("result.daily_tips", "uz") in focused
+    assert get_result_copy(ptype)["daily_tips"][0] not in focused

@@ -17,7 +17,7 @@ from app.dependencies import get_db_session
 from app.i18n import resolve_lang
 from app.personality.share_code import find_shared_session, og_image_path
 from app.repositories.personality_repository import PersonalityRepository
-from app.services.personality_scoring import calculate_personality_result
+from app.services.personality_scoring import personality_result_from_stored
 from app.services.referral_service import REFERRAL_QUERY_KEY
 from app.templating import templates
 
@@ -40,7 +40,8 @@ def shared_result(
     if content is None:
         raise StarletteHTTPException(status_code=404)
 
-    result = calculate_personality_result(
+    result = personality_result_from_stored(
+        session.result_type,
         session.e_score,
         session.i_score,
         session.s_score,
@@ -49,6 +50,10 @@ def shared_result(
         session.f_score,
         session.j_score,
         session.p_score,
+        ei_low_confidence=session.ei_low_confidence,
+        sn_low_confidence=session.sn_low_confidence,
+        tf_low_confidence=session.tf_low_confidence,
+        jp_low_confidence=session.jp_low_confidence,
     )
 
     return templates.TemplateResponse(

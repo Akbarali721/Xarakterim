@@ -69,7 +69,7 @@
             '<div class="mbti-user-feedback__success" role="status">' +
             '<p class="mbti-user-feedback__success-title">' +
             (data.success_title || "Rahmat! 💜") +
-            "</p><p class="mbti-user-feedback__success-body">" +
+            '</p><p class="mbti-user-feedback__success-body">' +
             (data.success_body || "") +
             "</p></div>";
         })

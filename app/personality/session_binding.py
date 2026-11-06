@@ -179,8 +179,6 @@ def session_needs_intent(session: PersonalityTestSession) -> bool:
 def redirect_for_intent_or_none(session: PersonalityTestSession) -> RedirectResponse | None:
     if not session_needs_intent(session):
         return None
-    if not has_appearance_choice(session):
-        return None
     return RedirectResponse(url="/personality/intent", status_code=303)
 
 

@@ -41,7 +41,7 @@ from app.models.ai_advice import (
     AiAdviceReport,
 )
 from app.models.personality import PersonalityTestSession
-from app.services.personality_scoring import calculate_personality_result
+from app.services.personality_scoring import personality_result_from_stored
 from app.services.premium_access import has_premium_access
 from app.timeutils import tashkent_day_start, utcnow
 
@@ -283,8 +283,13 @@ def system_prompt(language: str) -> str:
 
 
 def user_prompt(session: PersonalityTestSession, language: str) -> str:
-    """So'rov matni. Shaxsiy ma'lumot ATAYLAB kiritilmaydi."""
-    result = calculate_personality_result(
+    """So'rov matni. Shaxsiy ma'lumot ATAYLAB kiritilmaydi.
+
+    Tip va foizlar tugatishda saqlangan qiymatlardan olinadi — saltisiz qayta
+    hisob teng ballda tipni boshqa harfga aylantirishi mumkin edi.
+    """
+    result = personality_result_from_stored(
+        session.result_type or "",
         session.e_score,
         session.i_score,
         session.s_score,
@@ -293,6 +298,10 @@ def user_prompt(session: PersonalityTestSession, language: str) -> str:
         session.f_score,
         session.j_score,
         session.p_score,
+        ei_low_confidence=session.ei_low_confidence,
+        sn_low_confidence=session.sn_low_confidence,
+        tf_low_confidence=session.tf_low_confidence,
+        jp_low_confidence=session.jp_low_confidence,
     )
     scale = ", ".join(
         f"{left.upper()} {getattr(result, name).left_percent}% / "
@@ -301,7 +310,7 @@ def user_prompt(session: PersonalityTestSession, language: str) -> str:
     )
     count = settings.ai_advice_count
     return (
-        f"MBTI tipi: {session.result_type}.\n"
+        f"MBTI tipi: {result.result_type}.\n"
         f"O'lchovlar: {scale}.\n\n"
         f"Shu tip uchun {count} ta maslahat yozing. Har biri: qisqa sarlavha "
         f"(ko'pi bilan {TITLE_MAX} belgi) va 2-3 jumlalik tushuntirish "

@@ -23,6 +23,8 @@ from app.personality.constants import (
     BANK_POLE_COUNT_PER_DIRECTION,
     BANK_QUESTIONS_PER_DIMENSION,
     MASTER_BANK_QUESTION_COUNT,
+    QUESTION_BANK_V1,
+    QUESTION_BANK_V2,
 )
 from app.seed.personality_questions_uz import PERSONALITY_QUESTIONS_UZ
 from app.seed.personality_results_ru import get_result_copy_ru
@@ -258,6 +260,16 @@ def assert_question_bank_ready(db: Session, variant: str = DEFAULT_VARIANT) -> d
         f"Expected: {expected}.\n"
         f"{format_question_bank_report(stats)}"
     )
+
+
+def seed_v2_question_bank(db: Session) -> int:
+    """Tasdiqlangan savollarni V2 to'plamiga qo'shadi.
+
+    V1 (variant A) qatorlariga tegmaydi. Takroriy chaqiruv yangi id yaratmaydi.
+    """
+    if QUESTION_BANK_V2 == QUESTION_BANK_V1:
+        raise RuntimeError("V2 bank V1 bilan bir xil variantga yozilmaydi")
+    return seed_personality_questions(db, force=False, variant=QUESTION_BANK_V2)
 
 
 def seed_personality_questions(db: Session, *, force: bool = False, variant: str = DEFAULT_VARIANT) -> int:
